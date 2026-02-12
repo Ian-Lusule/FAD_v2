@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Fraud App Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Welcome Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">Welcome, {{ current_user.username }}!</h2>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-calendar"></i> Member since: {{ current_user.created_at|default('N/A') }}
+                            {% if current_user.last_login %}
+                            | <i class="bi bi-clock-history"></i> Last login: {{ current_user.last_login|default('N/A') }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        {% if unread_count > 0 %}
+                        <a href="#messages" class="btn btn-danger position-relative">
+                            <i class="bi bi-envelope"></i> Messages
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ unread_count }}
+                            </span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Saved Analyses</h6>
+                        <h2 class="text-primary">{{ saved_results|length }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Unread Messages</h6>
+                        <h2 class="{% if unread_count > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ unread_count }}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Account Type</h6>
+                        <h2>
+                            <span class="badge {% if current_user.is_admin %}bg-danger{% else %}bg-primary{% endif %}">
+                                {% if current_user.is_admin %}Admin{% else %}User{% endif %}
+                            </span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Actions</h6>
+                        <div class="btn-group">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-search"></i>
+                            </a>
+                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-key"></i>
+                            </a>
+                            <a href="{{ url_for('auth.contact_admin') }}" class="btn btn-sm btn-outline-info">
+                                <i class="bi bi-chat"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        {% if messages %}
+        <div class="card mb-4" id="messages">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-envelope"></i> Recent Messages
+                    {% if unread_count > 0 %}
+                    <span class="badge bg-danger ms-2">{{ unread_count }} unread</span>
+                    {% endif %}
+                </h5>
+                <a href="javascript:void(0)" onclick="refreshMessages()" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for message in messages %}
+                    <div class="list-group-item {% if not message.is_read %}list-group-item-warning{% endif %}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">
+                                {% if message.is_from_admin %}
+                                <i class="bi bi-shield-check text-primary"></i> From Admin
+                                {% else %}
+                                <i class="bi bi-person text-secondary"></i> To Admin
+                                {% endif %}
+                            </h6>
+                            <small>
+    {% if message.timestamp %}
+        {{ message.timestamp[:16].replace('T', ' ') }}
+    {% endif %}
+</small>
+                        </div>
+                        <p class="mb-1">{{ message.content }}</p>
+                        {% if not message.is_read and message.is_from_admin %}
+                        <small>
+                            <a href="javascript:void(0)" onclick="markAsRead('{{ message.id }}')" class="text-primary">
+                                Mark as read
+                            </a>
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Saved Analyses -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-save"></i> Saved Analysis Results
+                    <span class="badge bg-secondary ms-2">{{ saved_results|length }} total</span>
+                </h5>
+                <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle"></i> New Analysis
+                </a>
+            </div>
+            <div class="card-body">
+                {% if saved_results %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>App Name</th>
+                                <th>App ID</th>
+                                <th>Analysis Date</th>
+                                <th>Negative %</th>
+                                <th>Risk</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in saved_results %}
+                            <tr>
+                                <td>{{ result.app_name }}</td>
+                                <td><code>{{ result.app_id }}</code></td>
+                                <td>{{ result.analysis_date|datetimeformat }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if result.metrics.negative_pct > result.fraud_threshold %}bg-danger
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ result.metrics.negative_pct|round(1) }}%
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if result.risk_detected %}
+                                    <span class="badge bg-danger">High Risk</span>
+                                    {% else %}
+                                    <span class="badge bg-success">Low Risk</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('main.index') }}?app_id={{ result.app_id }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-search"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-save display-1 text-muted mb-3"></i>
+                    <h5>No saved analyses yet</h5>
+                    <p class="text-muted">Your analysis results will appear here once you save them.</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Analyze Your First App
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-search"></i> Analyze App
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.compare') }}" class="btn btn-outline-info">
+                                <i class="bi bi-compass"></i> Compare Apps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-warning">
+                                <i class="bi bi-key"></i> Change Password
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            <a href="{{ url_for('auth.contact_admin') }}" class="btn btn-outline-success">
+                                <i class="bi bi-chat"></i> Contact Admin
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-grid">
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshMessages() {
+    fetch('{{ url_for("auth.get_messages") }}')
+        .then(response => response.json())
+        .then(data => {
+            location.reload();
+        });
+}
+
+function markAsRead(messageId) {
+    fetch('{{ url_for("auth.mark_message_read", message_id=0) }}'.replace('0', messageId), {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}
