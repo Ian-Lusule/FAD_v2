@@ -1,0 +1,298 @@
+/* Custom CSS for Fraud App Analyzer */
+
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Card Customization */
+.card {
+    background-color: #1e1e1e;
+    border: 1px solid #2d2d2d;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #3d3d3d;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* Table Styling */
+.table {
+    color: #e0e0e0;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table th {
+    border-color: #3d3d3d;
+    font-weight: 600;
+}
+
+.table td {
+    border-color: #3d3d3d;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: #2d2d2d;
+    border: 1px solid #3d3d3d;
+    color: #e0e0e0;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #2d2d2d;
+    border-color: #0d6efd;
+    color: #e0e0e0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+.form-range::-webkit-slider-thumb {
+    background-color: #0d6efd;
+}
+
+.form-range::-moz-range-thumb {
+    background-color: #0d6efd;
+}
+
+/* Button Customization */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+.alert-success {
+    background-color: rgba(25, 135, 84, 0.2);
+    color: #d1e7dd;
+    border-left: 4px solid #198754;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.2);
+    color: #cff4fc;
+    border-left: 4px solid #0dcaf0;
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Progress Bars */
+.progress {
+    background-color: #2d2d2d;
+    border-radius: 10px;
+    height: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Badge Customization */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Styling */
+.modal-content {
+    background-color: #1e1e1e;
+    border: 1px solid #2d2d2d;
+}
+
+.modal-header {
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.modal-footer {
+    border-top: 1px solid #3d3d3d;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e1e1e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3d3d3d;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4d4d4d;
+}
+
+/* Utility Classes */
+.text-gradient {
+    background: linear-gradient(45deg, #0d6efd, #20c997);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Loading Spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+/* Review Text */
+.review-text {
+    line-height: 1.5;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+/* Star Rating */
+.star-rating {
+    color: #ffc107;
+    font-size: 1rem;
+}
+
+/* Comparison Bars */
+.comparison-bar-container {
+    margin-bottom: 1.5rem;
+}
+
+.comparison-bar-label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem;
+    }
+    
+    h1, h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animation for Risk Alert */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+
+.risk-alert {
+    animation: pulse 2s infinite;
+}
