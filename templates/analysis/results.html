@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - {{ app_details.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    .risk-alert {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- App Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-1">{{ app_details.title }}</h2>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-person"></i> {{ app_details.developer }} |
+                            <i class="bi bi-download"></i> {{ app_details.installs }} |
+                            <i class="bi bi-currency-dollar"></i> {% if app_details.free %}Free{% else %}${{ app_details.price }}{% endif %}
+                        </p>
+                        <p class="mb-0">
+                            <i class="bi bi-globe"></i> Country: {{ request.form.country|default('us')|upper }} |
+                            <i class="bi bi-clock"></i> Analyzed: {{ now|default('Now') }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <span class="badge bg-primary fs-5 p-3">
+                            Play Store: {{ app_details.score|default(0)|round(1) }}/5
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Alert -->
+        {% if risk_detected %}
+        <div class="alert alert-danger risk-alert mb-4">
+            <h4 class="alert-heading">
+                <i class="bi bi-exclamation-triangle-fill"></i> {{ risk_message }}
+            </h4>
+            <p class="mb-0">{{ config.RISK_ADVICE_UI }}</p>
+        </div>
+        {% else %}
+        <div class="alert alert-success mb-4">
+            <h4 class="alert-heading">
+                <i class="bi bi-check-circle-fill"></i> {{ risk_message }}
+            </h4>
+            <p class="mb-0">No significant risk indicators found based on your threshold of {{ fraud_threshold }}% negative reviews.</p>
+        </div>
+        {% endif %}
+
+        <!-- Metrics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card metric-card border-primary">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Reviews</h6>
+                        <h2 class="text-primary">{{ df|length }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card metric-card border-success">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Positive</h6>
+                        <h2 class="text-success">{{ positive_pct|round(1) }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card metric-card 
+                    {% if negative_pct > fraud_threshold %}border-danger{% else %}border-warning{% endif %}">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Negative</h6>
+                        <h2 class="{% if negative_pct > fraud_threshold %}text-danger{% else %}text-warning{% endif %}">
+                            {{ negative_pct|round(1) }}%
+                        </h2>
+                        <small>Threshold: {{ fraud_threshold }}%</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card metric-card border-info">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Neutral</h6>
+                        <h2 class="text-info">{{ neutral_pct|round(1) }}%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">App Rating Score</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 {% if app_rating_score < 50 %}text-danger{% elif app_rating_score < 70 %}text-warning{% else %}text-success{% endif %}">
+                            {{ app_rating_score|round(1) }}%
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar 
+                                {% if app_rating_score < 50 %}bg-danger{% elif app_rating_score < 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                                style="width: {{ app_rating_score }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Play Store Score</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="display-4 mb-3 {% if playstore_score < 50 %}text-danger{% elif playstore_score < 70 %}text-warning{% else %}text-success{% endif %}">
+                            {{ playstore_score|round(1) }}%
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar 
+                                {% if playstore_score < 50 %}bg-danger{% elif playstore_score < 70 %}bg-warning{% else %}bg-success{% endif %}" 
+                                style="width: {{ playstore_score }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classification Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Accuracy</h6>
+                        <h2 class="text-primary">{{ ((classification_metrics.accuracy|default(0)) * 100)|round(2) }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Precision</h6>
+                        <h2 class="text-success">{{ ((classification_metrics.precision|default(0)) * 100)|round(2) }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Recall</h6>
+                        <h2 class="text-warning">{{ ((classification_metrics.recall|default(0)) * 100)|round(2) }}%</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">F1 Score</h6>
+                        <h2 class="text-info">{{ ((classification_metrics.f1|default(0)) * 100)|round(2) }}%</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Classification Data Table -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Classification Details</h5>
+                <small class="text-muted">Confusion matrix and sample review rows used for metrics</small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="2" class="text-center">Confusion Matrix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>True Positive (TP)</td>
+                                    <td>{{ classification_metrics.confusion.tp }}</td>
+                                </tr>
+                                <tr>
+                                    <td>False Positive (FP)</td>
+                                    <td>{{ classification_metrics.confusion.fp }}</td>
+                                </tr>
+                                <tr>
+                                    <td>False Negative (FN)</td>
+                                    <td>{{ classification_metrics.confusion.fn }}</td>
+                                </tr>
+                                <tr>
+                                    <td>True Negative (TN)</td>
+                                    <td>{{ classification_metrics.confusion.tn }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Accuracy</td><td>{{ (classification_metrics.accuracy * 100)|round(2) }}%</td></tr>
+                                <tr><td>Precision</td><td>{{ (classification_metrics.precision * 100)|round(2) }}%</td></tr>
+                                <tr><td>Recall</td><td>{{ (classification_metrics.recall * 100)|round(2) }}%</td></tr>
+                                <tr><td>F1 Score</td><td>{{ (classification_metrics.f1 * 100)|round(2) }}%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sample examples: TP / FP / FN / TN -->
+                <div class="mb-2">
+                    <h6>Sample Reviews (up to 5 each)</h6>
+                    <div class="accordion" id="examplesAccordion">
+                        {% for key,label in [('tp','True Positives'),('fp','False Positives'),('fn','False Negatives'),('tn','True Negatives')] %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading-{{ key }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ key }}" aria-expanded="false" aria-controls="collapse-{{ key }}">
+                                    {{ label }} ({{ classification_metrics.examples[key]|length }})
+                                </button>
+                            </h2>
+                            <div id="collapse-{{ key }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ key }}" data-bs-parent="#examplesAccordion">
+                                <div class="accordion-body">
+                                    {% if classification_metrics.examples[key] %}
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Review</th>
+                                                    <th>Predicted</th>
+                                                    <th>Contains Keyword</th>
+                                                    <th>Rating</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for ex in classification_metrics.examples[key] %}
+                                                <tr>
+                                                    <td>{{ ex.content|truncate(150) }}</td>
+                                                    <td>{{ ex.predicted }}</td>
+                                                    <td>{{ 'Yes' if ex.contains_negative_keyword else 'No' }}</td>
+                                                    <td>{{ ex.score or '-' }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {% else %}
+                                        <p class="text-muted mb-0">No examples available for {{ label }}.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualizations -->
+        <div class="row mb-4">
+            {% if sentiment_chart %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sentiment Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ sentiment_chart }}" alt="Sentiment Chart" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if trend_chart %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sentiment Trend Over Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ trend_chart }}" alt="Trend Chart" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if wordcloud %}
+            <div class="col-12 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Word Cloud from Reviews</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ wordcloud }}" alt="Word Cloud" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sample Reviews -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Sample Reviews</h5>
+                <div class="d-flex align-items-center">
+                    <form method="get" class="me-3">
+                        <label class="form-label me-2 mb-0">Sort:</label>
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="newest" {% if request.args.get('sort','newest') == 'newest' %}selected{% endif %}>Newest</option>
+                            <option value="oldest" {% if request.args.get('sort') == 'oldest' %}selected{% endif %}>Oldest</option>
+                            <option value="helpful" {% if request.args.get('sort') == 'helpful' %}selected{% endif %}>Most Helpful</option>
+                        </select>
+                    </form>
+                    <span class="badge bg-secondary">{{ df|length }} total reviews</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Review</th>
+                                <th width="100">Sentiment</th>
+                                <th width="100">Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index, row in df.head(20).iterrows() %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex">
+                                        <div class="me-3">
+                                            <i class="bi bi-person-circle fs-2 text-secondary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="review-text">{{ row.content|truncate(300) }}</div>
+                                            <small class="text-muted d-block">{{ row.at|default('') }}</small>
+                                            <small class="text-muted">Helpful: {{ row.thumbsUpCount|default(0) }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if row.sentiment == 'Positive' %}bg-success
+                                        {% elif row.sentiment == 'Negative' %}bg-danger
+                                        {% else %}bg-warning{% endif %}">
+                                        {{ row.sentiment }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="star-rating">
+                                        {% for i in range(5) %}
+                                            <i class="bi bi-star{% if i < row.score %}fill{% endif %} text-warning"></i>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Export Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.export_csv') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.export_pdf') }}" class="btn btn-outline-danger">
+                                <i class="bi bi-file-earmark-pdf"></i> Download PDF Report
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <form method="post" action="{{ url_for('main.save_analysis') }}">
+                                <button class="btn btn-outline-success" type="submit">
+                                    <i class="bi bi-save"></i> Save Analysis
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#emailModal">
+                                <i class="bi bi-envelope"></i> Send Email Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between mb-4">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Analyze Another App
+            </a>
+            <a href="{{ url_for('main.compare') }}" class="btn btn-outline-info">
+                <i class="bi bi-compass"></i> Compare with Another App
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Email Modal -->
+<div class="modal fade" id="emailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send Analysis Report via Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.send_email_report') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="recipient_email" class="form-label">Recipient Email</label>
+                        <input type="email" id="recipient_email" name="recipient_email" class="form-control" required
+                               value="{% if current_user.is_authenticated %}{{ current_user.email }}{% endif %}">
+                        <div class="form-text">Enter the email address to receive the CSV and PDF report.</div>
+                    </div>
+                    <div class="form-text text-muted">
+                        {% if not current_user.is_authenticated %}
+                        Anonymous users can send up to <strong>3</strong> email reports per session before signing up is required.
+                        {% else %}
+                        Logged-in users can send up to <strong>10</strong> email reports per day. New accounts are limited to <strong>50</strong> total until verified by an admin.
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Email Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
