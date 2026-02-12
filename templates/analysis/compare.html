@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Apps - Fraud App Analyzer{% endblock %}
+
+{% block extra_css %}
+<style>
+.comparison-bar {
+    height: 30px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    position: relative;
+    background: linear-gradient(90deg, #0d6efd, #20c997);
+}
+
+.bar-container {
+    position: relative;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #2d2d2d;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 15px;
+    transition: width 1s ease-in-out;
+}
+
+.bar-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    padding: 0 10px;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h1 class="display-6 mb-3">
+                    <i class="bi bi-compass text-info"></i> App Comparison
+                </h1>
+                <p class="lead mb-0">
+                    Compare two apps side-by-side to evaluate their risk profiles and performance metrics.
+                </p>
+            </div>
+        </div>
+
+        <!-- App Headers -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h3>{{ app1_details.title }}</h3>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-person"></i> {{ app1_details.developer }}
+                        </p>
+                        {% if app1_details.score %}
+                        <span class="badge bg-primary fs-6 mb-3">
+                            <i class="bi bi-star-fill"></i> {{ app1_details.score|round(1) }}/5
+                        </span>
+                        {% endif %}
+                        {% if app1_details.installs %}
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-download"></i> {{ app1_details.installs }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h3>{{ app2_details.title }}</h3>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-person"></i> {{ app2_details.developer }}
+                        </p>
+                        {% if app2_details.score %}
+                        <span class="badge bg-primary fs-6 mb-3">
+                            <i class="bi bi-star-fill"></i> {{ app2_details.score|round(1) }}/5
+                        </span>
+                        {% endif %}
+                        {% if app2_details.installs %}
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-download"></i> {{ app2_details.installs }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Comparison -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-bar-chart"></i> Comparison Metrics</h4>
+            </div>
+            <div class="card-body">
+                <!-- Play Store Score -->
+                <div class="mb-4">
+                    <h5 class="text-center mb-3">Play Store Score</h5>
+                    {% set app1_score = app1_details.score|default(0) * 20 %}
+                    {% set app2_score = app2_details.score|default(0) * 20 %}
+                    {% set max_score = [app1_score, app2_score, 1]|max %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="bar-container">
+                                <div class="bar-fill bg-primary" style="width: {{ (app1_score / max_score) * 100 }}%"></div>
+                                <div class="bar-label">{{ app1_details.score|default(0)|round(1) }}/5</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bar-container">
+                                <div class="bar-fill bg-primary" style="width: {{ (app2_score / max_score) * 100 }}%"></div>
+                                <div class="bar-label">{{ app2_details.score|default(0)|round(1) }}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sentiment Metrics -->
+                {% if app1_metrics and app2_metrics %}
+                <div class="row">
+                    <!-- Total Reviews -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">Total Reviews Analyzed</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-value text-primary">{{ app1_metrics.total }}</div>
+                                        <div class="metric-label">{{ app1_details.title|truncate(20) }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-value text-primary">{{ app2_metrics.total }}</div>
+                                        <div class="metric-label">{{ app2_details.title|truncate(20) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Rating Score -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="mb-0">App Rating Score</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-value 
+                                            {% if app1_metrics.app_rating_score < 50 %}text-danger
+                                            {% elif app1_metrics.app_rating_score < 70 %}text-warning
+                                            {% else %}text-success{% endif %}">
+                                            {{ app1_metrics.app_rating_score|round(1) }}%
+                                        </div>
+                                        <div class="metric-label">{{ app1_details.title|truncate(20) }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-value 
+                                            {% if app2_metrics.app_rating_score < 50 %}text-danger
+                                            {% elif app2_metrics.app_rating_score < 70 %}text-warning
+                                            {% else %}text-success{% endif %}">
+                                            {{ app2_metrics.app_rating_score|round(1) }}%
+                                        </div>
+                                        <div class="metric-label">{{ app2_details.title|truncate(20) }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Positive Sentiment -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">Positive Sentiment</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-value text-success">{{ app1_metrics.positive_pct|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-value text-success">{{ app2_metrics.positive_pct|round(1) }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Negative Sentiment -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">Negative Sentiment</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-value text-danger">{{ app1_metrics.negative_pct|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-value text-danger">{{ app2_metrics.negative_pct|round(1) }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Neutral Sentiment -->
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header bg-warning text-white">
+                                <h6 class="mb-0">Neutral Sentiment</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="metric-value text-warning">{{ app1_metrics.neutral_pct|round(1) }}%</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="metric-value text-warning">{{ app2_metrics.neutral_pct|round(1) }}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Risk Assessment -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5>Risk Assessment</h5>
+                                {% if app1_metrics and app1_metrics.negative_pct > 30 %}
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> High Risk
+                                </div>
+                                {% elif app1_metrics and app1_metrics.negative_pct > 20 %}
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i> Medium Risk
+                                </div>
+                                {% elif app1_metrics %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill"></i> Low Risk
+                                </div>
+                                {% else %}
+                                <div class="alert alert-secondary">
+                                    <i class="bi bi-question-circle"></i> No Data
+                                </div>
+                                {% endif %}
+                                {% if app1_metrics %}
+                                <p class="text-muted mb-0">
+                                    Negative sentiment: {{ app1_metrics.negative_pct|round(1) }}%
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5>Risk Assessment</h5>
+                                {% if app2_metrics and app2_metrics.negative_pct > 30 %}
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> High Risk
+                                </div>
+                                {% elif app2_metrics and app2_metrics.negative_pct > 20 %}
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i> Medium Risk
+                                </div>
+                                {% elif app2_metrics %}
+                                <div class="alert alert-success">
+                                    <i class="bi bi-check-circle-fill"></i> Low Risk
+                                </div>
+                                {% else %}
+                                <div class="alert alert-secondary">
+                                    <i class="bi bi-question-circle"></i> No Data
+                                </div>
+                                {% endif %}
+                                {% if app2_metrics %}
+                                <p class="text-muted mb-0">
+                                    Negative sentiment: {{ app2_metrics.negative_pct|round(1) }}%
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                                <i class="bi bi-search"></i> Search More Apps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            {% if session.get('compare_apps') %}
+                            <a href="{{ url_for('main.remove_from_compare', index=0) }}" 
+                               class="btn btn-outline-warning">
+                                <i class="bi bi-x-circle"></i> Clear Comparison
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            {% set analyze_app_id = app1_details.appId if (app1_details and app1_details.appId) else (session.get('compare_apps', [])[0].app_id if session.get('compare_apps') else None) %}
+                            {% if analyze_app_id %}
+                            <a href="{{ url_for('main.analyze_direct', app_id=analyze_app_id) }}" 
+                               class="btn btn-outline-info">
+                                <i class="bi bi-search"></i> Analyze {{ app1_details.title|truncate(15) }}
+                            </a>
+                            {% else %}
+                            <button class="btn btn-outline-info" disabled>
+                                <i class="bi bi-search"></i> Analyze {{ app1_details.title|truncate(15) }}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
