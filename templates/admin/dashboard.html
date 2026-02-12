@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Fraud App Analyzer{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">
+                            <i class="bi bi-speedometer2 text-danger"></i> Admin Dashboard
+                        </h2>
+                        <p class="text-muted mb-0">
+                            Welcome, Administrator {{ current_user.username }}. Manage users, view analytics, and monitor system activity.
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-danger fs-6">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Users</h6>
+                        <h2 class="text-primary">{{ total_users }}</h2>
+                        <small class="text-muted">Registered accounts</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Searches</h6>
+                        <h2 class="text-info">{{ total_searches }}</h2>
+                        <small class="text-muted">App analyses performed</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Recent Results</h6>
+                        <h2 class="text-success">{{ recent_results|length }}</h2>
+                        <small class="text-muted">Last 10 analyses</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Messages</h6>
+                        <h2 class="text-warning">{{ recent_messages|length }}</h2>
+                        <small class="text-muted">Recent conversations</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-link"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('admin.user_management') }}" class="btn btn-outline-primary">
+                                        <i class="bi bi-people"></i> User Management
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('admin.message_center') }}" class="btn btn-outline-info">
+                                        <i class="bi bi-chat"></i> Message Center
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('admin.analytics') }}" class="btn btn-outline-success">
+                                        <i class="bi bi-graph-up"></i> Analytics
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <a href="{{ url_for('admin.export_logs') }}" class="btn btn-outline-warning">
+                                        <i class="bi bi-download"></i> Export Logs
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-grid">
+                                    <button id="notifyAllBtn" class="btn btn-outline-danger">
+                                        <i class="bi bi-bell"></i> Notify All Users
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Searched Apps -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-trophy"></i> Top Searched Apps</h5>
+                        <span class="badge bg-primary">{{ top_apps|length }} apps</span>
+                    </div>
+                    <div class="card-body">
+                        {% if top_apps %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>App Name</th>
+                                        <th>Searches</th>
+                                        <th>Rank</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for app in top_apps %}
+                                    <tr>
+                                        <td>{{ app.app_name|default('Unknown') }}</td>
+                                        <td>{{ app.search_count }}</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if loop.index == 1 %}bg-warning
+                                                {% elif loop.index == 2 %}bg-secondary
+                                                {% elif loop.index == 3 %}bg-danger
+                                                {% else %}bg-dark{% endif %}">
+                                                #{{ loop.index }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-search display-1 text-muted mb-3"></i>
+                            <p class="text-muted">No search data available yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Countries -->
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-globe"></i> Top Countries</h5>
+                        <span class="badge bg-info">{{ top_countries|length }} countries</span>
+                    </div>
+                    <div class="card-body">
+                        {% if top_countries %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th>Searches</th>
+                                        <th>Code</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for country in top_countries %}
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-flag"></i> 
+                                            {{ country.country|upper }}
+                                        </td>
+                                        <td>{{ country.search_count }}</td>
+                                        <td><code>{{ country.country }}</code></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-globe display-1 text-muted mb-3"></i>
+                            <p class="text-muted">No country data available yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Analyses -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recent Analyses</h5>
+                        <span class="badge bg-secondary">{{ recent_results|length }} results</span>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_results %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>App Name</th>
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Negative %</th>
+                                        <th>Risk</th>
+                                        <th>Country</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in recent_results %}
+                                    <tr>
+                                        <td>{{ result.app_name }}</td>
+                                        <td>
+                                            <span class="badge bg-dark">User #{{ result.user_id }}</span>
+                                        </td>
+                                        <td>{{ result.saved_at|datetimeformat }}</td>
+                                        <td>
+                                            {% set neg = (result.metrics.negative_pct if (result.metrics is defined and result.metrics.negative_pct is defined) else (result.negative_pct if result.negative_pct is defined else 0)) %}
+                                            <span class="badge 
+                                                    {% if neg > 30 %}bg-danger
+                                                    {% elif neg > 20 %}bg-warning
+                                                    {% else %}bg-success{% endif %}">
+                                                    {{ neg|round(1) }}%
+                                                </span>
+                                        </td>
+                                        <td>
+                                            {% if result.risk_detected %}
+                                            <span class="badge bg-danger">High Risk</span>
+                                            {% else %}
+                                            <span class="badge bg-success">Low Risk</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ result.country|upper }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-file-text display-1 text-muted mb-3"></i>
+                            <p class="text-muted">No analysis results available yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-envelope"></i> Recent Messages</h5>
+                        <a href="{{ url_for('admin.message_center') }}" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_messages %}
+                        <div class="list-group">
+                            {% for message in recent_messages %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        {% if message.is_from_admin %}
+                                        <i class="bi bi-shield-check text-primary"></i> Admin → User #{{ message.user_id }}
+                                        {% else %}
+                                        <i class="bi bi-person text-secondary"></i> User #{{ message.user_id }} → Admin
+                                        {% endif %}
+                                    </h6>
+                                    <small>{{ message.timestamp|datetimeformat }}</small>
+                                </div>
+                                <p class="mb-1">{{ message.content|truncate(100) }}</p>
+                                {% if not message.is_read %}
+                                <small class="text-danger">
+                                    <i class="bi bi-circle-fill"></i> Unread
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-chat display-1 text-muted mb-3"></i>
+                            <p class="text-muted">No messages available yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Notify All Modal (inside content for reliable rendering) -->
+    <!-- Modal markup sits here so it is part of the page content -->
+    <div class="modal fade" id="notifyAllModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Notification to All Users</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{{ url_for('admin.notify_all') }}">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="notify_content" class="form-label">Message</label>
+                            <textarea id="notify_content" name="content" class="form-control" rows="4" required></textarea>
+                            <div class="form-text">This will create an admin message for all users.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">OK</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var notifyBtn = document.getElementById('notifyAllBtn');
+            var notifyModalEl = document.getElementById('notifyAllModal');
+            if (notifyBtn && notifyModalEl && typeof bootstrap !== 'undefined') {
+                var bsModal = new bootstrap.Modal(notifyModalEl);
+                notifyBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    bsModal.show();
+                });
+
+                notifyModalEl.addEventListener('shown.bs.modal', function () {
+                    var ta = document.getElementById('notify_content');
+                    if (ta) ta.focus();
+                });
+            }
+        });
+    </script>
+    {% endblock %}
+</div>
+{% endblock %}
