@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "admin_id": null,
+    "content": "heerrr",
+    "timestamp": "2026-02-02T15:39:12.488270",
+    "is_from_admin": false,
+    "is_read": true
+  },
+  {
+    "id": 3,
+    "user_id": 3,
+    "admin_id": 1,
+    "content": "Wozaaa",
+    "timestamp": "2026-02-02T16:14:39.317856",
+    "is_from_admin": true,
+    "is_read": true
+  },
+  {
+    "id": 4,
+    "user_id": 3,
+    "admin_id": null,
+    "content": "can we talk",
+    "timestamp": "2026-02-02T16:22:03.330131",
+    "is_from_admin": false,
+    "is_read": true
+  },
+  {
+    "id": 5,
+    "user_id": 1,
+    "admin_id": 1,
+    "content": "Hello Everyone",
+    "timestamp": "2026-02-05T14:49:15.515009",
+    "is_from_admin": true,
+    "is_read": false
+  },
+  {
+    "id": 6,
+    "user_id": 2,
+    "admin_id": 1,
+    "content": "Hello Everyone",
+    "timestamp": "2026-02-05T14:49:15.515512",
+    "is_from_admin": true,
+    "is_read": false
+  },
+  {
+    "id": 7,
+    "user_id": 3,
+    "admin_id": 1,
+    "content": "Hello Everyone",
+    "timestamp": "2026-02-05T14:49:15.517650",
+    "is_from_admin": true,
+    "is_read": false
+  }
+]
