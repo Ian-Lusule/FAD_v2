@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Fraud App Analyzer{% endblock %}
+
+{% block extra_css %}
+<style>
+.app-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.app-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+.app-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.app-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    height: 2.4em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.app-developer {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.rating-badge {
+    font-size: 0.8rem;
+    padding: 0.2em 0.6em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Hero Section -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h1 class="display-5 mb-3">
+                    <i class="bi bi-shield-check text-primary"></i> Fraud App Analyzer
+                </h1>
+                <p class="lead mb-4">
+                    Analyze Google Play Store apps for potential fraud risks using sentiment analysis and machine learning.
+                </p>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-search"></i> Search for an App</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.search_apps_route') }}">
+                    <div class="mb-3">
+                        <label for="app_input" class="form-label">
+                            <i class="bi bi-google-play"></i> Enter App Name or Paste Play Store Link
+                        </label>
+                        <input type="text" class="form-control" id="app_input" name="app_input" 
+                               placeholder="e.g., WhatsApp, Facebook or https://play.google.com/store/apps/details?id=com.whatsapp" 
+                               value="{{ session.get('last_query', '') }}" required>
+                        <div class="form-text">Search by app name or paste the full Play Store URL.</div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">
+                                <i class="bi bi-globe"></i> Country
+                            </label>
+                            <select class="form-select" id="country" name="country">
+                                {% for country_code in countries %}
+                                    <option value="{{ country_code }}" 
+                                            {% if country_code == (session.get('last_country', default_country)) %}selected{% endif %}>
+                                        {{ country_code|upper }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="max_reviews" class="form-label">
+                                <i class="bi bi-list-check"></i> Max Reviews to Analyze
+                            </label>
+                            <input type="number" class="form-control" id="max_reviews" name="max_reviews" 
+                                   value="{{ session.get('last_max_reviews', default_max_reviews) }}" 
+                                   min="10" max="1000" step="10">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="fraud_threshold" class="form-label">
+                            <i class="bi bi-exclamation-triangle"></i> Fraud Risk Threshold (%)
+                        </label>
+                        <div class="d-flex align-items-center">
+                            <input type="range" class="form-range flex-grow-1 me-3" id="fraud_threshold" 
+                                   name="fraud_threshold" min="5" max="50" step="1" 
+                                   value="{{ session.get('last_fraud_threshold', default_threshold) }}"
+                                   oninput="document.getElementById('thresholdValue').textContent = this.value + '%'">
+                            <span class="badge bg-primary fs-6" id="thresholdValue">
+                                {{ session.get('last_fraud_threshold', default_threshold) }}%
+                            </span>
+                        </div>
+                        <div class="form-text">Apps with negative sentiment above this threshold will trigger a fraud alert.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-search"></i> Search Apps
+                        </button>
+                        {% if not current_user.is_authenticated %}
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    <a href="{{ url_for('auth.login') }}">Login</a> to save your analysis results
+                                </small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        {% if show_search_results and search_results %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check"></i> Search Results
+                    <span class="badge bg-primary ms-2">{{ search_results|length }} apps found</span>
+                </h5>
+                <a href="{{ url_for('main.clear_search') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Clear Results
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <label class="form-label me-2 mb-0">Sort:</label>
+                        <select id="searchSort" class="form-select form-select-sm d-inline-block" style="width:auto">
+                            <option value="relevance">Relevance</option>
+                            <option value="title">Name</option>
+                            <option value="score">Rating</option>
+                        </select>
+                    </div>
+                    <div>
+                        <small class="text-muted">Showing up to {{ session.get('search_per_page', 20) }} results</small>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="searchResultsTable">
+                        <thead>
+                            <tr>
+                                <th>App</th>
+                                <th>Developer</th>
+                                <th>Rating</th>
+                                <th>Installs</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in search_results %}
+                            {% set aid = app.get('appId') or app.get('app_id') %}
+                            <tr data-title="{{ app.title|e }}" data-score="{{ app.score or 0 }}" data-appid="{{ aid }}" data-developer="{{ app.developer|e }}">
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        {% if app.icon %}
+                                        <img src="{{ app.icon }}" alt="{{ app.title }}" class="app-icon me-3">
+                                        {% else %}
+                                        <div class="app-icon bg-secondary me-3 d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-app text-white fs-4"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-semibold">{{ app.title }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="align-middle">{{ app.developer }}</td>
+                                <td class="align-middle">{% if app.score %}<span class="badge bg-warning">{{ app.score|round(1) }}</span>{% else %}-{% endif %}</td>
+                                <td class="align-middle">{{ app.installs or '-' }}</td>
+                                <td class="align-middle">
+                                    <div class="btn-group" role="group">
+                                        {% if aid %}
+                                            <a href="{{ url_for('main.analyze_direct', app_id=aid) }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-search"></i>
+                                            </a>
+                                            <a href="{{ url_for('main.add_to_compare', app_id=aid) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-compass"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-secondary copy-link-btn" data-appid="{{ aid }}">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        {% else %}
+                                            <!-- When no app id is available, allow the user to attempt analysis by app title -->
+                                            <form method="POST" action="{{ url_for('main.search_apps_route') }}" style="display:inline;">
+                                                <input type="hidden" name="app_input" value="{{ app.title }}">
+                                                <input type="hidden" name="country" value="{{ session.get('last_country', default_country) }}">
+                                                <button type="submit" class="btn btn-sm btn-primary" title="Search and analyze by app title">
+                                                    <i class="bi bi-search"></i>
+                                                </button>
+                                            </form>
+                                            <button class="btn btn-sm btn-outline-info" disabled title="No app id available">
+                                                <i class="bi bi-compass"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary copy-link-btn" data-search="{{ app.title|urlencode }}">
+                                                <i class="bi bi-clipboard"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Comparison Section -->
+        {% if session.get('compare_apps') %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-compass"></i> Apps to Compare</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for app in session.get('compare_apps', []) %}
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ app.title }}</h6>
+                                        <p class="text-muted mb-2">{{ app.developer }}</p>
+                                        {% if app.score %}
+                                        <span class="badge bg-warning">
+                                            <i class="bi bi-star-fill"></i> {{ app.score|round(1) }}/5
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{{ url_for('main.remove_from_compare', index=loop.index0) }}" 
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if session.get('compare_apps', [])|length == 2 %}
+                <div class="d-grid">
+                    <a href="{{ url_for('main.compare') }}" class="btn btn-info btn-lg">
+                        <i class="bi bi-bar-chart"></i> Compare Now
+                    </a>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">Add one more app to compare</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Features -->
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up text-primary display-6 mb-3"></i>
+                        <h5>Sentiment Analysis</h5>
+                        <p class="text-muted">Analyze user reviews using TextBlob with negative keyword detection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-pdf text-primary display-6 mb-3"></i>
+                        <h5>Report Generation</h5>
+                        <p class="text-muted">Export detailed reports as CSV or PDF with visualizations.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-envelope text-primary display-6 mb-3"></i>
+                        <h5>Email Reports</h5>
+                        <p class="text-muted">Send analysis reports directly to your email inbox.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update threshold display
+    document.getElementById('fraud_threshold').addEventListener('input', function() {
+        document.getElementById('thresholdValue').textContent = this.value + '%';
+    });
+    
+    // Initialize threshold display on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const thresholdInput = document.getElementById('fraud_threshold');
+        const thresholdValue = document.getElementById('thresholdValue');
+        if (thresholdInput && thresholdValue) {
+            thresholdValue.textContent = thresholdInput.value + '%';
+        }
+    });
+</script>
+<script>
+// Client-side sorting and copy link handling for search results
+document.addEventListener('DOMContentLoaded', function() {
+    const sortSelect = document.getElementById('searchSort');
+    const tableBody = document.querySelector('#searchResultsTable tbody');
+
+    function sortRows(mode) {
+        if (!tableBody) return;
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        rows.sort(function(a, b) {
+            if (mode === 'title') {
+                return a.dataset.title.localeCompare(b.dataset.title);
+            } else if (mode === 'score') {
+                return parseFloat(b.dataset.score || 0) - parseFloat(a.dataset.score || 0);
+            }
+            // default relevance: keep original order
+            return 0;
+        });
+        // Re-append rows in new order
+        rows.forEach(r => tableBody.appendChild(r));
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function(e) {
+            sortRows(e.target.value);
+        });
+    }
+
+    // Copy link buttons
+    document.querySelectorAll('.copy-link-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const appId = btn.dataset.appid;
+            const country = document.getElementById('country') ? document.getElementById('country').value : 'us';
+            const url = `https://play.google.com/store/apps/details?id=${appId}&hl=${country}`;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(function() {
+                    btn.classList.add('text-success');
+                    setTimeout(()=>btn.classList.remove('text-success'), 1000);
+                });
+            } else {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = url;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); btn.classList.add('text-success'); setTimeout(()=>btn.classList.remove('text-success'),1000);} catch(e) {}
+                ta.remove();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
