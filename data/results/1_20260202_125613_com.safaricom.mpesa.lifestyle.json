@@ -1,0 +1,77 @@
+{
+  "app_id": "com.safaricom.mpesa.lifestyle",
+  "app_name": "M-PESA",
+  "app_details": {
+    "title": "M-PESA",
+    "description": "Introducing the new M-PESA App! The new app allows you to do more on M-PESA fast and conveniently. View and manage your financials easily with the new features now available with just a few taps on your mobile phone.\r\n\r\n\u2022\tCore M-PESA transactions - Access all core M-PESA transactions with a brand new and more simplified user experience - Send money, buy goods, pay bill, withdraw at agent and buy airtime\r\n\u2022\tOffline Mode - Log in and transact on the app (Send Money, LNM, withdraw and buy airtime only) without having an active data connection i.e., app can be used without data bundles or with data turned off completely.\r\n\u2022\tMy Spend - Allows the user to track their M-PESA spend per month with aggregate and daily average spend displayed on the card on the home screen as well as a more detailed view with transactions broken down by category with the user being able to change their category\r\n\u2022\tStatement - Review, interact and action your entire M-PESA statement directly on the home screen as well as filter, download and export your M-PESA statement in PDF form\r\n\u2022\tReceipts - Download and share e-receipts for send money, buy goods, pay bill and withdraw transactions to share transaction information with other users via pdf\r\n\u2022\tBiometric Authentication - Log in and transact on the app using face or fingerprint authentication without having to enter M-PESA PIN manually every time\r\n\u2022\tPochi la Biashara - New transaction type on M-PESA that enables users to send money to the business wallet for micro merchants\r\n\u2022\tFavourites - Save people or businesses you interact with regularly directly on the app so you don\u2019t have to manually enter the details every time you want to make a payment\r\n\u2022\tFrequents - Get an automatically generated list of people or businesses you frequently send money to\r\n\u2022\tM-PESA Global - International money transfer service that enables send to mobile, send to bank, send to western union, PayPal top up and withdrawal and roaming pick up\r\n\u2022\tDue Bills - Get notifications for your bills when they become due and pay fully or partially directly from the app* for participating billers\r\n\u2022\tBuy bundles - buy Safaricom data, voice and SMS bundles and pay directly on the app using airtime or M-PESA\r\n\u2022\tSend money with gifs/description - Add context when sending money by adding a payment description or attaching a gif for the recipient\r\n\u2022\tSend money with profile picture - Enables users to upload a profile picture that will be visible when someone sends them money via the app\r\n\u2022\tfrequently interact with to simplify the payment process\r\n\u2022\tQR - Initiate send money, buy goods, pay bill and withdraw transactions by scanning QR codes and generate and share your own personal QR code",
+    "descriptionHTML": "Introducing the new M-PESA App! The new app allows you to do more on M-PESA fast and conveniently. View and manage your financials easily with the new features now available with just a few taps on your mobile phone.<br><br>\u2022\tCore M-PESA transactions - Access all core M-PESA transactions with a brand new and more simplified user experience - Send money, buy goods, pay bill, withdraw at agent and buy airtime<br>\u2022\tOffline Mode - Log in and transact on the app (Send Money, LNM, withdraw and buy airtime only) without having an active data connection i.e., app can be used without data bundles or with data turned off completely.<br>\u2022\tMy Spend - Allows the user to track their M-PESA spend per month with aggregate and daily average spend displayed on the card on the home screen as well as a more detailed view with transactions broken down by category with the user being able to change their category<br>\u2022\tStatement - Review, interact and action your entire M-PESA statement directly on the home screen as well as filter, download and export your M-PESA statement in PDF form<br>\u2022\tReceipts - Download and share e-receipts for send money, buy goods, pay bill and withdraw transactions to share transaction information with other users via pdf<br>\u2022\tBiometric Authentication - Log in and transact on the app using face or fingerprint authentication without having to enter M-PESA PIN manually every time<br>\u2022\tPochi la Biashara - New transaction type on M-PESA that enables users to send money to the business wallet for micro merchants<br>\u2022\tFavourites - Save people or businesses you interact with regularly directly on the app so you don\u2019t have to manually enter the details every time you want to make a payment<br>\u2022\tFrequents - Get an automatically generated list of people or businesses you frequently send money to<br>\u2022\tM-PESA Global - International money transfer service that enables send to mobile, send to bank, send to western union, PayPal top up and withdrawal and roaming pick up<br>\u2022\tDue Bills - Get notifications for your bills when they become due and pay fully or partially directly from the app* for participating billers<br>\u2022\tBuy bundles - buy Safaricom data, voice and SMS bundles and pay directly on the app using airtime or M-PESA<br>\u2022\tSend money with gifs/description - Add context when sending money by adding a payment description or attaching a gif for the recipient<br>\u2022\tSend money with profile picture - Enables users to upload a profile picture that will be visible when someone sends them money via the app<br>\u2022\tfrequently interact with to simplify the payment process<br>\u2022\tQR - Initiate send money, buy goods, pay bill and withdraw transactions by scanning QR codes and generate and share your own personal QR code",
+    "summary": "The new M-PESA App makes it easier to transact on M-PESA",
+    "installs": "10,000,000+",
+    "minInstalls": 10000000,
+    "realInstalls": 17569004,
+    "score": 4.624042,
+    "ratings": 644423,
+    "reviews": 75896,
+    "histogram": [
+      17298,
+      9803,
+      30147,
+      83373,
+      503798
+    ],
+    "price": 0,
+    "free": true,
+    "currency": "KES",
+    "sale": false,
+    "saleTime": null,
+    "originalPrice": null,
+    "saleText": null,
+    "offersIAP": false,
+    "inAppProductPrice": null,
+    "developer": "Safaricom PLC",
+    "developerId": "Safaricom+PLC",
+    "developerEmail": "customercare@Safaricom.co.ke",
+    "developerWebsite": "https://www.safaricom.co.ke/",
+    "developerAddress": null,
+    "privacyPolicy": "https://www.safaricom.co.ke/images/Downloads/Terms_and_Conditions/C1_Safaricom_Data_Privacy_Statement.pdf",
+    "genre": "Finance",
+    "genreId": "FINANCE",
+    "categories": [
+      {
+        "name": "Finance",
+        "id": "FINANCE"
+      }
+    ],
+    "icon": "https://play-lh.googleusercontent.com/bRZF74-13jknePwUd1xam5ZCSdAJVuI_wqtkrisBgu7EEh1jobh2boZihlk-4ikY_S3V",
+    "headerImage": "https://play-lh.googleusercontent.com/eaFnnkJtioPTL4BL-ErHC7YIdzVU9ASKlxJ-e01JafUwqKmQB6XroUx1uZJfqjyPbL8",
+    "screenshots": [
+      "https://play-lh.googleusercontent.com/Kzr_1oamhvyJajYZZoT8f63NYB43yKeGPmv27THp58tHD7LNrpXtef1mQy8Rb1HzOV0",
+      "https://play-lh.googleusercontent.com/CWBbn2r1R1JpkTLmFqnr16OyF5CmnExKAxfHSuDSOLzfb-ZGYjZM_14pGG4iLTC-nHo",
+      "https://play-lh.googleusercontent.com/sDPLC65FdXrx_QPEX7tlD_bxnx0-KgVDYAxWCK6O9MNZhoEvrCaQM6_5MnBNPZLq5ZI",
+      "https://play-lh.googleusercontent.com/-jHdgPTF77_tMoQIKFNtNzMvXOx3C2iViAc7jrMaDCrMVHnQ3JKV_dr0Z7NfOz2V_mms",
+      "https://play-lh.googleusercontent.com/jkHDzRgi_JHpgZh31X0Q2qNnlUCFcoQBmWSjCsma-xvx31GYMm8zvZjz06ufIeUVDgLQ",
+      "https://play-lh.googleusercontent.com/Qm5SI5J0Xf4GOe2YXKknEDz6ukpsqd2aL65ykxagiEr5LOczqr6mT2viVLVTAo5_bU68"
+    ],
+    "video": "https://www.youtube.com/embed/xfbNNexyvDA?vq=large&rel=0&autohide=1&showinfo=0",
+    "videoImage": "https://play-lh.googleusercontent.com/eaFnnkJtioPTL4BL-ErHC7YIdzVU9ASKlxJ-e01JafUwqKmQB6XroUx1uZJfqjyPbL8",
+    "contentRating": "Rated for 3+",
+    "contentRatingDescription": null,
+    "adSupported": false,
+    "containsAds": false,
+    "released": "May 27, 2021",
+    "lastUpdatedOn": "Dec 17, 2025",
+    "updated": 1765965695,
+    "version": "3.5.8",
+    "comments": [],
+    "appId": "com.safaricom.mpesa.lifestyle",
+    "url": "https://play.google.com/store/apps/details?id=com.safaricom.mpesa.lifestyle&hl=en&gl=ke"
+  },
+  "analysis_date": "2026-02-02T12:56:13.001317",
+  "country": "ke",
+  "metrics": {
+    "total_reviews": 1000,
+    "positive_pct": 73.6,
+    "negative_pct": 4.9,
+    "app_rating_score": 93.75796178343948
+  },
+  "risk_detected": 
