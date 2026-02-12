@@ -1,0 +1,5 @@
+timestamp,user_id,app_id,country,app_name
+2026-02-02T12:33:12.513341,anonymous,com.whatsapp,us,WhatsApp Messenger
+2026-02-02T12:43:27.959868,anonymous,com.whatsapp,us,WhatsApp Messenger
+2026-02-02T12:55:08.032074,anonymous,com.safaricom.mpesa.lifestyle,us,M-PESA
+2026-02-02T12:56:13.001551,1,com.safaricom.mpesa.lifestyle,ke,M-PESA
